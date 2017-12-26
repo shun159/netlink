@@ -1,9 +1,9 @@
-defmodule NfQueue.Mixfile do
+defmodule Netlink.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :nf_queue,
+      app: :netlink,
       version: "0.1.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
