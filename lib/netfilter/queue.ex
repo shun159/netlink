@@ -1,4 +1,4 @@
-defmodule NfQueue do
+defmodule Netfilter.Queue do
   use GenServer
 
   defmodule State do
@@ -23,9 +23,11 @@ defmodule NfQueue do
     {@nf_accept, state}
   end
 
-  def start_link(queue, opts \\ []) do
-    GenServer.start_link(__MODULE__, [queue, opts])
-  end
+  def query(pid, query),
+    do: GenServer.cast(pid, {:query, query})
+
+  def start_link(queue, opts \\ []),
+    do: GenServer.start_link(__MODULE__, [queue, opts])
 
   def init([queue, opts]) do
     callback_mod = opts[:callback_mod] || __MODULE__
@@ -39,6 +41,11 @@ defmodule NfQueue do
     :ok = :gen_socket.input_event(socket, true)
     cb_state = callback_mod.nfq_init(opts)
     {:ok, %State{socket: socket, queue: queue, cb_mod: callback_mod, cb_state: cb_state}}
+  end
+
+  def handle_cast({:query, query}, %State{socket: socket} = state) do
+    IO.inspect nfnl_query(socket, query)
+    {:noreply, state}
   end
 
   def handle_info({socket, :input_ready}, %State{socket: socket} = state) do
@@ -131,21 +138,5 @@ defmodule NfQueue do
   end
 
   # mesosphere/gen_netlink.sockaddr_nl/3 is not defined.
-  defp netlink_sockaddr_nl do
-    sockaddr_nl(:netlink, 0, 0)
-  end
-
-  defp sockaddr_nl(family, pid, groups) do
-    sockaddr_nl({family, pid, groups})
-  end
-
-  defp sockaddr_nl({family, pid, groups}) when is_atom(family) do
-    sockaddr_nl({:gen_socket.family(family), pid, groups})
-  end
-  defp sockaddr_nl({family, pid, groups}) do
-    <<family::16-native-integer, 0::16, pid::32-native-integer, groups::32-native-integer>>
-  end
-  defp sockaddr_nl(<< family::16-native-integer, _pad::16, pid::32-native-integer, groups::32-native-integer>>) do
-    {:gen_socket.family(family), pid, groups}
-  end
+  defp netlink_sockaddr_nl, do: Netlink.Utils.sockaddr_nl(:netlink, 0, 0)
 end
