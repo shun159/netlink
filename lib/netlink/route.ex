@@ -110,6 +110,13 @@ defmodule Netlink.Route do
     netlink_request(pid, :delneigh, [], neigh)
   end
 
+  # ip rule
+
+  def iprule_add(pid, src_prefix_len, table, attr \\ []) do
+    iprule = iprule(src_prefix_len, table, attr)
+    netlink_request(pid, :newrule, [:create, :excl], iprule)
+  end
+
   # private functions
 
   defp iplink(:add, pid, linkinfo) do
@@ -195,6 +202,21 @@ defmodule Netlink.Route do
       _flags    = 2, # ntf_self,
       _ndm_type = 0,
       _attr     = [dst: dst, lladdr: Netlink.Utils.mac_hex_to_tuple(lladdr)]
+    }
+  end
+
+  defp iprule(src_prefix_len, table, attr) do
+    {
+      _family         = :inet,
+      _dst_prefix_len = 0,
+      _src_prefix_len = src_prefix_len,
+      _tos            = 0,
+      _table          = table,
+      _protocol       = :boot,
+      _scope          = :universe,
+      _type           = :unicast,
+      _flags          = [],
+      _attr           = attr
     }
   end
 
