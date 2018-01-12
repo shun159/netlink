@@ -109,3 +109,123 @@ THIS IS NFQUEUE message!!!!
 - ifindex_indev:  `non_neg_integer()`
 - ifindex_outdev: `non_neg_integer()`
 - hwaddr:         `<<_::6-bytes>>`
+
+### Netfilter.Table
+
+nftables intarface.  
+Implemented functions in this module are follows:
+
+```elixir
+{:ok, pid} = Netfilter.Table.start_link
+Netfilter.Table.stop(pid)
+```
+
+#### Table-related
+
+- gettables/1
+- newtable/2, newtable/3
+- deltable/2, deltable/3
+
+##### Examples:
+
+```elixir
+{:ok, tables} = Netfilter.Table.gettables(pid)
+{:ok, []} = Netfilter.Table.newtable(pid, "foo")
+{:ok, []} = Netfilter.Table.newtable(pid, _family = :inet6, "foo6")
+{:ok, []} = Netfilter.Table.deltable(pid, "foo")
+{:ok, []} = Netfilter.Table.deltable(pid, _family = :inet6, "foo6")
+```
+
+##### Types:
+
+- family: `:inet | :inet6`
+
+#### Chain-related
+
+- getchains/1
+- newchain/3, newchain/4, newchain/5
+- delchain/3, delchain/4
+
+##### Examples:
+
+```elixir
+{:ok, chains} = Netfilter.Table.getchains(pid)
+{:ok, []} = Netfilter.Table.newchain(pid, _table = "foo", _name  = "blah",
+  policy: :accept,
+  type: "nat",
+  hook: [hooknum: :prerouting, priority: 0]
+)
+{:ok, []} = Netfilter.Table.delchain(pid, "foo", "blah")
+```
+
+##### Chain Attributes
+
+- handle: `0..0xffffffffffffffff`
+- hook: `nft_chain_hook_attrs()`
+- policy: `:drop | :accept, | :stolen | :queue | :repeat | :stop`
+- type: `"filter" | "nat" | "route"`
+- `nft_chain_hook_attrs()`
+  - hooknum: `:prerouting | :input | :forward | :postrouting | :output | :ingress`
+  - priority: `0..0xffffffff`
+  - dev: `String.t`
+
+#### Rule-related
+
+- getrules/1
+- newrule/4, newrule/5
+- delrule/4, delrule/5
+
+##### Examples
+
+```elixir
+{:ok, rules} = Netfilter.Table.getrules(pid)
+{:ok, []} = Netfilter.Table.newrule(pid,
+  _table = "foo",
+  _chain = "postrouting",
+   expressions: [
+     expr: [name: 'payload', data: [dreg: 1, base: :network_header, offset: 12, len: 4]],
+     expr: [
+       name: 'bitwise',
+       data: [sreg: 1, dreg: 1, len: 4, mask: [value: <<255, 255, 255, 224>>], xor: [value: <<0, 0, 0, 0>>]]
+     ],
+     expr: [name: 'cmp', data: [sreg: 1, op: :eq, data: [value: <<10, 5, 6, 0>>]]],
+     expr: [name: 'meta', data: [key: :oif, dreg: 1]],
+     expr: [name: 'cmp', data: [sreg: 1, op: :eq, data: [value: <<15, 0, 0, 0>>]]],
+     expr: [name: 'masq', data: ""]
+   ]
+)
+{:ok, []} = Netfilter.Table.delrule(pid, "foo", "postrouting", _handle = 15)
+```
+
+Above is equivalent to below....(´；ω；`)
+
+```
+table ip foo {
+  chain postrouting {
+    ip saddr 10.5.6.0/27 oif "veth0" masquerade
+　}
+}
+```
+
+#### Set-related
+
+- getsets/1
+- newset/4, newset/5 # newset/4 and /5 doen't work
+- delset/3, delset/4
+
+##### Examples
+
+```elixir
+{:ok, rules} = Netfilter.Table.getsets(pid)
+Netfilter.Table.newset(pid, _table = "foo", _name = "blahblah",
+  flags: [:timeout],
+  key_type: 13,
+  key_len: 2,
+  timeout: 10845000,
+  userdata: "",
+  desc: ""
+)
+{:ok, []} = Netfilter.Table.delset(pid, "foo", "blahblah")
+```
+
+#### Setelement-related
