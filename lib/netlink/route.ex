@@ -117,6 +117,11 @@ defmodule Netlink.Route do
     netlink_request(pid, :newrule, [:create, :excl], iprule)
   end
 
+  def iprule_del(pid, src_prefix_len, table, attr \\ []) do
+    iprule = iprule(src_prefix_len, table, attr)
+    netlink_request(pid, :delrule, [:create, :excl], iprule)
+  end
+
   # private functions
 
   defp iplink(:add, pid, linkinfo) do

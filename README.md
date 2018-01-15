@@ -31,6 +31,7 @@ this module can be Linux network setup via rtnl.
 - bridge\_fdb\_append/4
 - bridge\_fdb\_del/4
 - iprule\_add/3, iprule\_add/4
+- iprule\_del/3, iprule\_del/4
 
 #### Example
 
@@ -44,7 +45,7 @@ this module can be Linux network setup via rtnl.
 {:ok, []} = Netlink.Route.iproute_replace(pid, {100,100,100,0}, 24, {172,18,0,1})
 {:ok, []} = Netlink.Route.iproute_add_with_dev(pid, {200,200,200,0}, 24, 8)
 {:ok, []} = Netlink.Route.bridge_fdb_append(pid, {200,200,200,200}, "00cafebabe", "vxlan0")
-{:ok, []} = Netlink.Route.iprule_add(pid, 0, 1, [fwmark: 1, fwmask: 1])
+{:ok, []} = Netlink.Route.iprule_add(pid, _prefix_len = 0, _table = 1, fwmark: 1, fwmask: 1)
 ```
 
 ### Netfilter.Queue
