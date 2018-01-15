@@ -79,13 +79,11 @@ defmodule Netlink.Route do
 
   # ip route
 
-  def iproute_add_with_dev(pid, dst, prefix_len, ifname)
-  when is_binary(ifname) do
+  def iproute_add_with_dev(pid, dst, prefix_len, <<ifname::bytes>>, table_id \\ 32_766) do
     ifindex = Netlink.Utils.if_nametoindex(ifname)
-    iproute_add_with_dev(pid, dst, prefix_len, ifindex)
+    iproute_add_with_dev(pid, dst, prefix_len, ifindex, table_id)
   end
-  def iproute_add_with_dev(pid, dst, prefix_len, ifindex, table_id \\ 32_766)
-  when is_integer(ifindex) do
+  def iproute_add_with_dev(pid, dst, prefix_len, ifindex, table_id) when is_integer(ifindex) do
     do_iproute_replace(pid, prefix_len, table_id, dst: dst, oif: ifindex)
   end
 
