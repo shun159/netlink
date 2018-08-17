@@ -149,6 +149,17 @@ Netfilter.Table.stop(pid)
   tuple_orig:  [ip: [v4_src: {192,168,5,25}, v4_dst: {192,168,5,128}], proto: [num: :icmp, icmp_id: 12102, icmp_type: 8, icmp_code: 0]],
   tuple_reply: [ip: [v4_dst: {192,168,5,25}, v4_src: {192,168,5,128}], proto: [num: :icmp, icmp_id: 12102, icmp_type: 0, icmp_code: 0]]
 )
+
+attrs = 
+  pid
+  |> Netfilter.Table.get_conntrack()
+  |> Kernel.elem(1)
+  |> Enum.at(0)
+  |> Kernel.elem(5)
+  |> Kernel.elem(3)
+  |> Enum.filter(fn({key, _v}) -> key in [:tuple_orig, :tuple_reply] end)
+
+{:ok, []} = Netfilter.Table.delete_conntrack(pid, attrs)
 ```
 
 #### Table-related
