@@ -32,6 +32,11 @@ defmodule Netfilter.Table do
     Netlink.Client.ctnl_request(pid, :new, [:create, :request, :ack, :excl], cmd)
   end
 
+  def delete_conntrack(pid, attrs \\ []) do
+    cmd = {:inet, _version = 0, _resid = 0, attrs}
+    Netlink.Client.ctnl_request(pid, :delete, [:request, :ack], cmd)
+  end
+
   # table
 
   def gettables(pid) do
