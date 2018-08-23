@@ -96,6 +96,11 @@ defmodule Netlink.Client do
     if_nametoindex(ifname, options)
   end
 
+  def if_indextoname(ifindex) when is_integer(ifindex) do
+    options = get_options(:packet, @eth_p_ip, :raw)
+    if_indextoname(ifindex, options)
+  end
+
   def callback_mode, do: [:handle_event_function]
 
   def start_link(family_id),
@@ -339,6 +344,23 @@ defmodule Netlink.Client do
     catch
       error ->
         {:error, error}
+    after
+      :procket.close(fd)
+    end
+  end
+
+  defp if_indextoname(ifindex, options) do
+    {:ok, fd} = :procket.open(0, options)
+
+    try do
+      case :packet.ifname(fd, ifindex) do
+        name when is_binary(name) -> {:ok, name}
+      end
+    catch
+      _, {:badmatch, error} ->
+        error
+      _, error ->
+        error
     after
       :procket.close(fd)
     end

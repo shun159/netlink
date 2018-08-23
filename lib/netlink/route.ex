@@ -20,6 +20,17 @@ defmodule Netlink.Route do
     Process.exit(pid, :kill)
   end
 
+  # Utils
+
+  def ifindex_to_name(ifindex) do
+    case Netlink.Client.if_indextoname(ifindex) do
+      {:error, :enodev} ->
+        nil
+      {:ok, device} when is_binary(device) ->
+        device
+    end
+  end
+
   # ip link
 
   def iplink_add(pid, ifname, kind, id, dstport, dev) do
