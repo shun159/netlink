@@ -137,14 +137,15 @@ Netfilter.Table.stop(pid)
 
 #### Connection tracking
 
-- get\_conntrack/1, get\_conntrack/2
-- set\_conntrack/1, set\_conntrack/2
+- get\_conntrack/1, get\_conntrack/2, get\_conntrack/3
+- set\_conntrack/1, set\_conntrack/2, set\_conntrack/3
+- delete\_conntrack/1, delete\_conntrack/2, delete\_conntrack/3
 
 ##### Examples:
 
 ```elixir
-{:ok, entries} = Netfilter.Table.get_conntrack(pid)
-{:ok, []} = Netfilter.Table.set_conntrack(pid, 
+{:ok, entries} = Netfilter.Table.get_conntrack(pid, [], :inet)
+{:ok, []} = Netfilter.Table.set_conntrack(pid,
   timeout:     3,
   tuple_orig:  [ip: [v4_src: {192,168,5,25}, v4_dst: {192,168,5,128}], proto: [num: :icmp, icmp_id: 12102, icmp_type: 8, icmp_code: 0]],
   tuple_reply: [ip: [v4_dst: {192,168,5,25}, v4_src: {192,168,5,128}], proto: [num: :icmp, icmp_id: 12102, icmp_type: 0, icmp_code: 0]]

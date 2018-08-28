@@ -22,19 +22,25 @@ defmodule Netfilter.Table do
 
   # conntrack tables
 
-  def get_conntrack(pid, attrs \\ []) do
-    cmd = {:unspec, _version = 0, _resid = 0, attrs}
-    Netlink.Client.ctnl_request(pid, :get, [:match, :root], cmd)
+  def get_conntrack(pid, attrs \\ [], family \\ :unspec)
+
+  def get_conntrack(pid, attrs, family) do
+    cmd = {family, _version = 0, _resid = 0, attrs}
+    Netlink.Client.ctnl_request(pid, :get, [:match, :request], cmd)
   end
 
-  def set_conntrack(pid, attrs \\ []) do
-    cmd = {:inet, _version = 0, _resid = 0, attrs}
+  def set_conntrack(pid, attrs \\ [], family \\ :inet)
+
+  def set_conntrack(pid, attrs, family) do
+    cmd = {family, _version = 0, _resid = 0, attrs}
     Netlink.Client.ctnl_request(pid, :new, [:create, :request, :ack, :excl], cmd)
   end
 
-  def delete_conntrack(pid, attrs \\ []) do
-    cmd = {:inet, _version = 0, _resid = 0, attrs}
-    Netlink.Client.ctnl_request(pid, :delete, [:request, :ack], cmd)
+  def delete_conntrack(pid, attrs \\ [], family \\ :inet)
+
+  def delete_conntrack(pid, attrs, family) do
+    cmd = {family, _version = 0, _resid = 0, attrs}
+    Netlink.Client.ctnl_request(pid, :delete, [:request, :ack, :excl], cmd)
   end
 
   # table
