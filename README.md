@@ -272,3 +272,11 @@ Netfilter.Table.newset(pid, _table = "foo", _name = "blahblah",
 ```
 
 #### Setelement-related
+
+
+
+License
+-------
+Tres is released under the __SUSHI-WARE LICENSE__.
+
+__私に寿司をおごってください__
